@@ -54,7 +54,7 @@ if __name__ == "__main__":
 
 #Author- Ashwarya Sharma
 
-def determining_orfs:
+def determining_orfs():
 
     orfs = []
     i = start
@@ -86,7 +86,7 @@ def determining_orfs:
 
 
 filename = input("Enter filename: ")
-min_len = int(input("Minimum ORF length (50): ")
+min_len = int(input("Minimum ORF length (50): ") )
 
 
 header = ""
