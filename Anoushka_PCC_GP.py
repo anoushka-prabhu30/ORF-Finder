@@ -1,0 +1,53 @@
+# input parsing
+# Author- Anoushka Prabhu
+
+def get_input():
+    f = input("Enter FASTA file: ")
+    m = input("Enter minimum length in bp for ORFs (default=50): ")
+    m = 50 if m.strip() == "" else int(m)
+    return f, m
+
+def parse(f):
+    try:
+        with open(f, 'r') as file:
+            lines = file.readlines()
+    except FileNotFoundError:
+        print(f"Error: File '{f}' not found.")
+        return []
+    
+    seqs = []
+    i = 0
+    
+    while i < len(lines):
+        if lines[i].startswith('>'):
+            h = lines[i].strip()[1:]
+            i += 1
+            parts = []
+            while i < len(lines) and not lines[i].startswith('>'):
+                line = lines[i].strip().upper()
+                line = ''.join(line.split())
+                if line:
+                    parts.append(line)
+                i += 1
+            dna = ''.join(parts)
+            seqs.append((h, dna))
+        else:
+            i += 1
+    
+    return seqs
+
+def get():
+    f, m = get_input()
+    seqs = parse(f)
+    if not seqs:
+        print("No sequences found!")
+        return [], m
+    print(f"\nFound {len(seqs)} sequence(s)")
+    return seqs, m
+
+if __name__ == "__main__":
+    s, m = get()
+    for h, d in s:
+        print(f"Header: {h}")
+        print(f"Length of the sequence: {len(d)}")
+        print()
