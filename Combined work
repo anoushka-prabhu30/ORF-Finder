@@ -1,0 +1,137 @@
+
+# Author- Anoushka Prabhu
+
+def get_input():
+    f = input("Enter FASTA file: ")
+    m = input("Enter minimum length in bp for ORFs (default=50): ")
+    m = 50 if m.strip() == "" else int(m)
+    return f, m
+
+def parse(f):
+    try:
+        with open(f, 'r') as file:
+            lines = file.readlines()
+    except FileNotFoundError:
+        print(f"Error: File '{f}' not found.")
+        return []
+    
+    seqs = []
+    i = 0
+    
+    while i < len(lines):
+        if lines[i].startswith('>'):
+            h = lines[i].strip()[1:]
+            i += 1
+            parts = []
+            while i < len(lines) and not lines[i].startswith('>'):
+                line = lines[i].strip().upper()
+                line = ''.join(line.split())
+                if line:
+                    parts.append(line)
+                i += 1
+            dna = ''.join(parts)
+            seqs.append((h, dna))
+        else:
+            i += 1
+    
+    return seqs
+
+def get():
+    f, m = get_input()
+    seqs = parse(f)
+    if not seqs:
+        print("No sequences found!")
+        return [], m
+    print(f"\nFound {len(seqs)} sequence(s)")
+    return seqs, m
+
+if __name__ == "__main__":
+    s, m = get()
+    for h, d in s:
+        print(f"Header: {h}")
+        print(f"Length of the sequence: {len(d)}")
+        print()
+
+#Author- Ashwarya Sharma
+
+def determining_orfs:
+
+    orfs = []
+    i = start
+    
+    while i <= len(dna) - 3:
+        codon = dna[i:i+3]
+        
+      
+        if codon == 'ATG':
+            start_codon = i
+            ORF = i + 3
+           
+            while ORF <= len(dna) - 3:
+                stop_codon = dna[ORF:ORF +3]
+                
+                if stop_codon == 'TGA' or stop_codon == 'TAG' or stop_codon == 'TAA':
+                    orf = dna[start_codon:ORF+3]
+                    
+                    if len(orf) >= min_len:
+                        pos = -(len(dna) - start_pos)
+                        orfs.append((frame_num, pos, orf))
+                    
+                    i = ORF + 3  
+                    break
+                ORF += 3
+        else:
+            i += 3
+    return orfs
+
+
+filename = input("Enter filename: ")
+min_len = int(input("Minimum ORF length (50): ")
+
+
+header = ""
+sequence = ""
+
+with open(_______) as f:
+    for line in f:
+        line = line.strip()
+        if line.startswith('>'):
+            if sequence:  
+                orfs = find_orfs(sequence, min_len)
+                for frame, pos, orf in orfs:
+                    print_orf(header, frame, pos, orf)
+                    print()
+            header = line[1:]
+            sequence = ""
+        else:
+            sequence += line.upper().replace(' ', '')
+
+if sequence:
+    orfs = find_orfs(sequence, min_len)
+    for frame, pos, orf in orfs:
+        print_orf(header, frame, pos, orf)
+        print()
+
+#Author- Pratham Patel 
+
+def format_sequence(d):
+    codons = [d[i:i+3] for i in range(0, len(d)-2, 3)]
+    lines = []
+
+    for i in range(0, len(codons), 15):
+        lines.append(' '.join(codons[i:i+15]))
+
+    return '\n'.join(lines)
+
+def print_orfs(h, orfs, d):
+
+    for frame, start, length, seq in orfs:
+
+        if frame <= 3:
+            pos = start + 1
+        else:
+            pos = -(len(d) - start - 1)
+
+        print(f">{h} | FRAME = {frame} POS = {pos} LEN = {length}")
+        print(format_sequence(seq))
+        print()
