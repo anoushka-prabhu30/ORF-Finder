@@ -1,5 +1,12 @@
+# ORF Finder - Final Combined Program
+# Group Project - PCC
 
-# Author- Anoushka Prabhu
+# Author: Anoushka Prabhu (Input Parsing)
+# Author: Ashwarya Sharma (ORF Detection)
+# Author: Pratham Patel (Output Formatting)
+
+# PART 1: INPUT PARSING - Anoushka Prabhu
+
 
 def get_input():
     f = input("Enter FASTA file: ")
@@ -36,7 +43,7 @@ def parse(f):
     
     return seqs
 
-def get():
+def get_sequences():
     f, m = get_input()
     seqs = parse(f)
     if not seqs:
@@ -45,93 +52,116 @@ def get():
     print(f"\nFound {len(seqs)} sequence(s)")
     return seqs, m
 
-if __name__ == "__main__":
-    s, m = get()
-    for h, d in s:
-        print(f"Header: {h}")
-        print(f"Length of the sequence: {len(d)}")
-        print()
 
-#Author- Ashwarya Sharma
 
-def determining_orfs():
+# PART 2: ORF DETECTION - Ashwarya Sharma
 
+
+def reverse_complement(dna):
+    complement = {'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G'}
+    return ''.join(complement[base] for base in dna[::-1])
+
+def find_orfs_in_frame(dna, frame, frame_num, is_reverse, min_len, original_len):
     orfs = []
-    i = start
+    start_pos = frame
+    i = start_pos
     
     while i <= len(dna) - 3:
         codon = dna[i:i+3]
         
-      
         if codon == 'ATG':
-            start_codon = i
-            ORF = i + 3
-           
-            while ORF <= len(dna) - 3:
-                stop_codon = dna[ORF:ORF +3]
+            start_idx = i
+            j = i + 3
+            
+            while j <= len(dna) - 3:
+                stop_codon = dna[j:j+3]
                 
-                if stop_codon == 'TGA' or stop_codon == 'TAG' or stop_codon == 'TAA':
-                    orf = dna[start_codon:ORF+3]
+                if stop_codon in ['TAA', 'TAG', 'TGA']:
+                    orf_seq = dna[start_idx:j+3]
+                    orf_len = len(orf_seq)
                     
-                    if len(orf) >= min_len:
-                        pos = -(len(dna) - start_pos)
-                        orfs.append((frame_num, pos, orf))
+                    if orf_len >= min_len:
+                        if is_reverse:
+                            pos = -(original_len - start_idx)
+                        else:
+                            pos = start_idx + 1
+                        orfs.append((frame_num, pos, orf_len, orf_seq))
                     
-                    i = ORF + 3  
+                    i = j + 3
                     break
-                ORF += 3
+                j += 3
+            else:
+                break
         else:
             i += 3
+    
     return orfs
 
+def find_all_orfs(dna, min_len):
+    all_orfs = []
+    original_len = len(dna)
+    
+    for frame in range(3):
+        orfs = find_orfs_in_frame(dna, frame, frame + 1, False, min_len, original_len)
+        all_orfs.extend(orfs)
+    
+    rev_dna = reverse_complement(dna)
+    
+    for frame in range(3):
+        orfs = find_orfs_in_frame(rev_dna, frame, frame + 4, True, min_len, original_len)
+        all_orfs.extend(orfs)
+    
+    return all_orfs
 
-filename = input("Enter filename: ")
-min_len = int(input("Minimum ORF length (50): ") )
 
 
-header = ""
-sequence = ""
+# PART 3: OUTPUT FORMATTING - Pratham Patel
 
-with open(_______) as f:
-    for line in f:
-        line = line.strip()
-        if line.startswith('>'):
-            if sequence:  
-                orfs = find_orfs(sequence, min_len)
-                for frame, pos, orf in orfs:
-                    print_orf(header, frame, pos, orf)
-                    print()
-            header = line[1:]
-            sequence = ""
-        else:
-            sequence += line.upper().replace(' ', '')
 
-if sequence:
-    orfs = find_orfs(sequence, min_len)
-    for frame, pos, orf in orfs:
-        print_orf(header, frame, pos, orf)
-        print()
-
-#Author- Pratham Patel 
-
-def format_sequence(d):
-    codons = [d[i:i+3] for i in range(0, len(d)-2, 3)]
+def format_codons(dna):
+    codons = [dna[i:i+3] for i in range(0, len(dna) - 2, 3)]
+    if len(dna) % 3 != 0:
+        codons.append(dna[-(len(dna) % 3):])
+    
     lines = []
-
     for i in range(0, len(codons), 15):
         lines.append(' '.join(codons[i:i+15]))
-
+    
     return '\n'.join(lines)
 
-def print_orfs(h, orfs, d):
+def print_orf(header, frame, pos, length, seq):
+    print(f">{header} | FRAME = {frame} POS = {pos} LEN = {length}")
+    print(format_codons(seq))
+    print()
 
-    for frame, start, length, seq in orfs:
+def print_all_orfs(header, orfs):
+    if not orfs:
+        return
+    for frame, pos, length, seq in orfs:
+        print_orf(header, frame, pos, length, seq)
 
-        if frame <= 3:
-            pos = start + 1
+
+
+# MAIN PROGRAM
+
+def main():
+    sequences, min_length = get_sequences()
+    
+    if not sequences:
+        return
+    
+    print(f"\nSearching for ORFs with minimum length {min_length} bp...\n")
+    print("-" * 50)
+    
+    for header, dna in sequences:
+        print(f"\nProcessing: {header}")
+        orfs = find_all_orfs(dna, min_length)
+        
+        if orfs:
+            orfs.sort(key=lambda x: x[0])
+            print_all_orfs(header, orfs)
         else:
-            pos = -(len(d) - start - 1)
+            print(f"No ORFs found with length >= {min_length} bp\n")
 
-        print(f">{h} | FRAME = {frame} POS = {pos} LEN = {length}")
-        print(format_sequence(seq))
-        print()
+if __name__ == "__main__":
+    main()
