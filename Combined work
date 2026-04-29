@@ -8,17 +8,9 @@
 # PART 1: INPUT PARSING - Anoushka Prabhu
 
 def get_input():
-    """Gets user input for FASTA filename and minimum ORF length."""
+    """Gets user input for FASTA filename."""
     f = input("Enter FASTA file: ")
-    m = input("Enter minimum length in bp for ORFs (default=50): ")
-
-    try:
-        m = 50 if m.strip() == "" else int(m)
-    except ValueError:
-        print("Invalid input. Using default = 50.")
-        m = 50
-
-    return f, m
+    return f
 
 def parse(f):
     """Parses FASTA file and returns list of (header, DNA sequence)."""
@@ -51,13 +43,12 @@ def parse(f):
     return seqs
 
 def get_sequences():
-    """Retrieves sequences from file and user-defined minimum ORF length."""
-    f, m = get_input()
+    """Retrieves sequences from file."""
+    f = get_input()
     seqs = parse(f)
     if not seqs:
-        print("No sequences found!")
-        return [], m
-    return seqs, m
+        return []
+    return seqs
 
 # PART 2: ORF DETECTION - Ashwarya Sharma
 
@@ -153,10 +144,19 @@ def print_all_orfs(header, orfs):
 # MAIN PROGRAM
 
 def main():
-    sequences, min_length = get_sequences()
+    sequences = get_sequences()
     
     if not sequences:
         return
+
+    # NOW ask for min length AFTER file is valid
+    m = input("Enter minimum length in bp for ORFs (default=50): ")
+
+    try:
+        min_length = 50 if m.strip() == "" else int(m)
+    except ValueError:
+        print("Invalid input. Using default = 50.")
+        min_length = 50
     
     for header, dna in sequences:
         orfs = find_all_orfs(dna)
