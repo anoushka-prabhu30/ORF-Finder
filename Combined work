@@ -57,7 +57,6 @@ def get_sequences():
     if not seqs:
         print("No sequences found!")
         return [], m
-    print(f"\nFound {len(seqs)} sequence(s)")
     return seqs, m
 
 # PART 2: ORF DETECTION - Ashwarya Sharma
@@ -159,11 +158,7 @@ def main():
     if not sequences:
         return
     
-    print(f"\nSearching for ORFs with minimum length {min_length} bp...\n")
-    print("-" * 50)
-    
     for header, dna in sequences:
-        print(f"\nProcessing: {header}")
         orfs = find_all_orfs(dna)
         orfs = filter_orfs(orfs, min_length)
         
