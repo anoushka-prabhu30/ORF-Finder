@@ -149,7 +149,6 @@ def main():
     if not sequences:
         return
 
-    # NOW ask for min length AFTER file is valid
     m = input("Enter minimum length in bp for ORFs (default=50): ")
 
     try:
