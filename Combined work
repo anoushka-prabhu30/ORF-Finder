@@ -5,13 +5,15 @@
 # Author: Ashwarya Sharma (ORF Detection)
 # Author: Pratham Patel (Output Formatting)
 
-# PART 1: INPUT PARSING - Anoushka Prabhu
+# PART 1: INPUT PARSING 
 
+# Author: Anoushka Prabhu
 def get_input():
     """Gets user input for FASTA filename."""
     f = input("Enter FASTA file: ")
     return f
 
+# Author: Anoushka Prabhu
 def parse(f):
     """Parses FASTA file and returns list of (header, DNA sequence)."""
     try:
@@ -25,13 +27,13 @@ def parse(f):
     i = 0
     
     while i < len(lines):
-        if lines[i].startswith('>'):
+        if lines[i].startswith('>'): #Check for header line starting with '>'
             h = lines[i].strip()[1:]
             i += 1
             parts = []
-            while i < len(lines) and not lines[i].startswith('>'):
+            while i < len(lines) and not lines[i].startswith('>'): #Collect sequence lines until next header
                 line = lines[i].strip().upper()
-                line = ''.join(line.split())
+                line = ''.join(line.split()) #Remove whitespace and convert to uppercase
                 if line:
                     parts.append(line)
                 i += 1
@@ -42,6 +44,7 @@ def parse(f):
     
     return seqs
 
+# Author: Anoushka Prabhu
 def get_sequences():
     """Retrieves sequences from file."""
     f = get_input()
@@ -50,15 +53,16 @@ def get_sequences():
         return []
     return seqs
 
-# PART 2: ORF DETECTION - Ashwarya Sharma
+# PART 2: ORF DETECTION 
 
+# Author: Ashwarya Sharma
 def reverse_complement(dna):
     ''' Creation of the reverse complement of the given DNA sequence.'''
     complement = {'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G'}
-    reverse = dna[::-1]
+    reverse = dna[::-1] #Reverse the DNA sequence
 
     result = ''
-    for letter in reverse:
+    for letter in reverse: #Build complement strand base by base
         if letter in complement:
             result = result + complement[letter]
         else:
@@ -66,6 +70,7 @@ def reverse_complement(dna):
     
     return result
 
+# Author: Ashwarya Sharma
 def orf_frame(dna, start_position, frame_number, original_length):
     ''' Finds all ORFs in a specific reading frame using DNA sequence string, starting position, and frame identifier. ''' 
     orfs = []
@@ -74,15 +79,15 @@ def orf_frame(dna, start_position, frame_number, original_length):
     while position <= len(dna) - 3:
         codon = dna[position:position+3]
         
-        if codon == 'ATG':
+        if codon == 'ATG': #Check for start codon
             start = position
             new_position = position + 3
             
             found_stop = False
-            while new_position <= len(dna) - 3:
+            while new_position <= len(dna) - 3: #Looks forward in same frame for stop codon
                 stop_codon = dna[new_position:new_position+3]
                 
-                if stop_codon == 'TGA' or stop_codon == 'TAG' or stop_codon == 'TAA':
+                if stop_codon == 'TGA' or stop_codon == 'TAG' or stop_codon == 'TAA': #Stop codon found, then extract ORF
                     orf_sequence = dna[start:new_position+3]
                     orf_length = len(orf_sequence)
                     
@@ -105,20 +110,22 @@ def orf_frame(dna, start_position, frame_number, original_length):
     
     return orfs
 
+# Author: Ashwarya Sharma
 def find_orfs(dna):
     ''' Finds all ORFs from 3 forward and 3 reverse sequences.'''
 
     all_orfs = []
     
-    for frame in range(3):
+    for frame in range(3): #Process forward strand (frames 1-3)
         all_orfs.extend(orf_frame(dna, frame, frame + 1, len(dna)))
 
-    rev_comp = reverse_complement(dna)
+    rev_comp = reverse_complement(dna) #Process reverse complement strand (frames 4–6)
     for frame in range(3):
         all_orfs.extend(orf_frame(rev_comp, frame, frame + 4, len(dna)))
     
     return all_orfs
 
+# Author: Ashwarya Sharma
 def filter_orfs(orfs, min_length):
     ''' Filters ORFs by minimum length in base pairs'''
    
@@ -127,26 +134,30 @@ def filter_orfs(orfs, min_length):
         if orf[2] >= min_length:
             f.append(orf)
     return f
-# PART 3: OUTPUT FORMATTING - Pratham Patel
 
+# PART 3: OUTPUT FORMATTING 
+
+# Author: Pratham Patel
 def format_codons(dna):
     """Formats DNA sequence into codons (15 per line)."""
-    codons = [dna[i:i+3] for i in range(0, len(dna) - 2, 3)]
+    codons = [dna[i:i+3] for i in range(0, len(dna) - 2, 3)] #Split sequence into codons (groups of 3 bases)
     if len(dna) % 3 != 0:
-        codons.append(dna[-(len(dna) % 3):])
+        codons.append(dna[-(len(dna) % 3):]) 
     
     lines = []
-    for i in range(0, len(codons), 15):
-        lines.append(' '.join(codons[i:i+15]))
+    for i in range(0, len(codons), 15): #Group codons into lines of maximum 15 codons
+        lines.append(' '.join(codons[i:i+15])) 
     
     return '\n'.join(lines)
 
+# Author: Pratham Patel
 def print_orf(header, frame, pos, length, seq):
     """Prints a single ORF in FASTA format."""
     print(f">{header} | FRAME = {frame} POS = {pos} LEN = {length}")
     print(format_codons(seq))
     print()
 
+# Author: Pratham Patel
 def print_all_orfs(header, orfs):
     """Prints all ORFs for a given sequence."""
     if not orfs:
@@ -156,13 +167,14 @@ def print_all_orfs(header, orfs):
 
 # MAIN PROGRAM
 
+# Authors: All Group Members
 def main():
-    sequences = get_sequences()
+    sequences = get_sequences() #Get sequences from input file
     
     if not sequences:
         return
 
-    m = input("Enter minimum length in bp for ORFs (default=50): ")
+    m = input("Enter minimum length in bp for ORFs (default=50): ") #Ask user for minimum ORF length (default = 50)
 
     try:
         min_length = 50 if m.strip() == "" else int(m)
@@ -175,7 +187,7 @@ def main():
         orfs = filter_orfs(orfs, min_length)
         
         if orfs:
-            orfs.sort(key=lambda x: (x[0], x[1]))
+            orfs.sort(key=lambda x: (x[0], x[1])) #Sort ORFs by frame and position before printing
             print_all_orfs(header, orfs)
         else:
             print(f">{header} | No ORFs found\n")
