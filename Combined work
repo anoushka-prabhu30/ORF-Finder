@@ -51,8 +51,7 @@ def get_sequences():
     return seqs
 
 # PART 2: ORF DETECTION - Ashwarya Sharma
-
-def reverse_complement(dna):
+def reverse_complement(dna): #Creating Reverse Complement strand
     complement = {'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G'}
     reverse = dna[::-1]
 
@@ -65,7 +64,7 @@ def reverse_complement(dna):
     
     return result
 
-def orf_frame(dna, start_position, frame_number):
+def orf_frame(dna, start_position, frame_number): #Selecting ORF frame
     orfs = []
     position = start_position
     
@@ -98,6 +97,27 @@ def orf_frame(dna, start_position, frame_number):
             position = position + 3
     
     return orfs
+
+def find_orfs(dna): #Find ORFS for all Reading Frames including forward and reverse
+    all_orfs = []
+    
+    for frame in range(3):
+        all_orfs.extend(orf_frame(dna, frame, frame + 1))
+    
+    
+    rev_comp = reverse_complement(dna)
+    for frame in range(3):
+        all_orfs.extend(orf_frame(rev_comp, frame, -(frame + 1)))
+    
+    return all_orfs
+
+def filtering(orfs, min_length): #Filterting ORFS
+    f = []
+    for orf in orfs:
+        if orf[2] >= min_length:
+            f.append(orf)
+    return f
+
 
 # PART 3: OUTPUT FORMATTING - Pratham Patel
 
@@ -143,8 +163,8 @@ def main():
         min_length = 50
     
     for header, dna in sequences:
-        orfs = find_all_orfs(dna)
-        orfs = filter_orfs(orfs, min_length)
+        orfs = find_orfs(dna)
+        orfs = filtering (orfs, min_length)
         
         if orfs:
             orfs.sort(key=lambda x: (x[0], x[1]))
