@@ -97,7 +97,7 @@ def orf_frame(dna, start_position, frame_number, original_length):
                         pos = -(start + 1)
                     
                     orfs.append((frame_number, pos, orf_length, orf_sequence))
-                    position = new_position + 3
+                    position = new_position + 3 #Move to the end of this ORF so we don’t pick smaller ORFs inside it
                     found_stop = True
                     break
                 
