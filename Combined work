@@ -51,7 +51,9 @@ def get_sequences():
     return seqs
 
 # PART 2: ORF DETECTION - Ashwarya Sharma
-def reverse_complement(dna): #Creating Reverse Complement strand
+
+def reverse_complement(dna):
+    ''' Creation of the reverse complement of the given DNA sequence.'''
     complement = {'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G'}
     reverse = dna[::-1]
 
@@ -64,7 +66,8 @@ def reverse_complement(dna): #Creating Reverse Complement strand
     
     return result
 
-def orf_frame(dna, start_position, frame_number): #Selecting ORF frame
+def orf_frame(dna, start_position, frame_number):
+    ''' Finds all ORFs in a specific reading frame using DNA sequence string, starting position, and frame identifier. ''' 
     orfs = []
     position = start_position
     
@@ -82,10 +85,14 @@ def orf_frame(dna, start_position, frame_number): #Selecting ORF frame
                 if stop_codon == 'TGA' or stop_codon == 'TAG' or stop_codon == 'TAA':
                     orf_sequence = dna[start:new_position+3]
                     orf_length = len(orf_sequence)
-                    pos = start + 1
+                    
+                    if frame_number > 0:
+                        pos = start + 1
+                    else:
+                        pos = -(len(dna) - start)
                     
                     orfs.append((frame_number, pos, orf_length, orf_sequence))
-                    position = new_position + 3
+                    position = start + 3
                     found_stop = True
                     break
                 
@@ -98,12 +105,13 @@ def orf_frame(dna, start_position, frame_number): #Selecting ORF frame
     
     return orfs
 
-def find_orfs(dna): #Find ORFS for all Reading Frames including forward and reverse
+def find_orfs(dna):
+''' Finds all ORFs from 3 forward and 3 reverse sequences.'''
+
     all_orfs = []
     
     for frame in range(3):
         all_orfs.extend(orf_frame(dna, frame, frame + 1))
-    
     
     rev_comp = reverse_complement(dna)
     for frame in range(3):
@@ -111,14 +119,14 @@ def find_orfs(dna): #Find ORFS for all Reading Frames including forward and reve
     
     return all_orfs
 
-def filtering(orfs, min_length): #Filterting ORFS
+def filter_orfs(orfs, min_length):
+    ''' Filters ORFs by minimum length in base pairs'''
+   
     f = []
     for orf in orfs:
         if orf[2] >= min_length:
             f.append(orf)
     return f
-
-
 # PART 3: OUTPUT FORMATTING - Pratham Patel
 
 def format_codons(dna):
@@ -164,7 +172,7 @@ def main():
     
     for header, dna in sequences:
         orfs = find_orfs(dna)
-        orfs = filtering (orfs, min_length)
+        orfs = filter_orfs(orfs, min_length)
         
         if orfs:
             orfs.sort(key=lambda x: (x[0], x[1]))
