@@ -53,66 +53,51 @@ def get_sequences():
 # PART 2: ORF DETECTION - Ashwarya Sharma
 
 def reverse_complement(dna):
-    """Returns the reverse complement of a DNA sequence."""
     complement = {'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G'}
-    return ''.join(complement.get(base, base) for base in dna[::-1])
+    reverse = dna[::-1]
 
-def find_orfs_in_frame(dna, frame, frame_num, is_reverse, original_len):
-    """Finds all ORFs in a single reading frame."""
-    orfs = []
-    i = frame
-
-    while i <= len(dna) - 3:
-        codon = dna[i:i+3]
-
-        if codon == 'ATG':
-            start_idx = i
-            j = i + 3
-
-            while j <= len(dna) - 3:
-                stop_codon = dna[j:j+3]
-
-                if stop_codon in ['TAA', 'TAG', 'TGA']:
-                    orf_seq = dna[start_idx:j+3]
-                    orf_len = len(orf_seq)
-
-                    if is_reverse:
-                        pos = -(original_len - start_idx - 1)
-                    else:
-                        pos = start_idx + 1
-
-                    orfs.append((frame_num, pos, orf_len, orf_seq))
-
-                    i = j + 3
-                    break
-                j += 3
-            else:
-                break
+    result = ''
+    for letter in reverse:
+        if letter in complement:
+            result = result + complement[letter]
         else:
-            i += 3
+            result = result + letter
+    
+    return result
 
+def orf_frame(dna, start_position, frame_number):
+    orfs = []
+    position = start_position
+    
+    while position <= len(dna) - 3:
+        codon = dna[position:position+3]
+        
+        if codon == 'ATG':
+            start = position
+            new_position = position + 3
+            
+            found_stop = False
+            while new_position <= len(dna) - 3:
+                stop_codon = dna[new_position:new_position+3]
+                
+                if stop_codon == 'TGA' or stop_codon == 'TAG' or stop_codon == 'TAA':
+                    orf_sequence = dna[start:new_position+3]
+                    orf_length = len(orf_sequence)
+                    pos = start + 1
+                    
+                    orfs.append((frame_number, pos, orf_length, orf_sequence))
+                    position = new_position + 3
+                    found_stop = True
+                    break
+                
+                new_position = new_position + 3
+            
+            if not found_stop:
+                position = position + 3
+        else:
+            position = position + 3
+    
     return orfs
-
-def find_all_orfs(dna):
-    """Finds all ORFs across all 6 reading frames."""
-    all_orfs = []
-    original_len = len(dna)
-    
-    for frame in range(3):
-        orfs = find_orfs_in_frame(dna, frame, frame + 1, False, original_len)
-        all_orfs.extend(orfs)
-    
-    rev_dna = reverse_complement(dna)
-    
-    for frame in range(3):
-        orfs = find_orfs_in_frame(rev_dna, frame, frame + 4, True, original_len)
-        all_orfs.extend(orfs)
-    
-    return all_orfs
-
-def filter_orfs(orfs, min_len):
-    """Filters ORFs based on minimum length threshold."""
-    return [orf for orf in orfs if orf[2] >= min_len]
 
 # PART 3: OUTPUT FORMATTING - Pratham Patel
 
