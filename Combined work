@@ -89,7 +89,7 @@ def orf_frame(dna, start_position, frame_number):
                     if frame_number > 0:
                         pos = start + 1
                     else:
-                        pos = -(len(dna) - start)
+                        pos = -(len(dna) - start - 2)
                     
                     orfs.append((frame_number, pos, orf_length, orf_sequence))
                     position = start + 3
