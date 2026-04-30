@@ -66,7 +66,7 @@ def reverse_complement(dna):
     
     return result
 
-def orf_frame(dna, start_position, frame_number):
+def orf_frame(dna, start_position, frame_number, original_length):
     ''' Finds all ORFs in a specific reading frame using DNA sequence string, starting position, and frame identifier. ''' 
     orfs = []
     position = start_position
@@ -86,13 +86,13 @@ def orf_frame(dna, start_position, frame_number):
                     orf_sequence = dna[start:new_position+3]
                     orf_length = len(orf_sequence)
                     
-                    if frame_number > 0:
+                    if frame_number <= 3:
                         pos = start + 1
                     else:
-                        pos = -(len(dna) - start - 2)
+                        pos = -(start + 1)
                     
                     orfs.append((frame_number, pos, orf_length, orf_sequence))
-                    position = start + 3
+                    position = new_position + 3
                     found_stop = True
                     break
                 
@@ -111,11 +111,11 @@ def find_orfs(dna):
     all_orfs = []
     
     for frame in range(3):
-        all_orfs.extend(orf_frame(dna, frame, frame + 1))
-    
+        all_orfs.extend(orf_frame(dna, frame, frame + 1, len(dna)))
+
     rev_comp = reverse_complement(dna)
     for frame in range(3):
-        all_orfs.extend(orf_frame(rev_comp, frame, -(frame + 1)))
+        all_orfs.extend(orf_frame(rev_comp, frame, frame + 4, len(dna)))
     
     return all_orfs
 
