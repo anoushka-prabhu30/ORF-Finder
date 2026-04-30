@@ -106,7 +106,7 @@ def orf_frame(dna, start_position, frame_number):
     return orfs
 
 def find_orfs(dna):
-''' Finds all ORFs from 3 forward and 3 reverse sequences.'''
+    ''' Finds all ORFs from 3 forward and 3 reverse sequences.'''
 
     all_orfs = []
     
