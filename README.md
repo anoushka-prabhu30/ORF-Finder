@@ -5,6 +5,7 @@
 This project implements a Python program that finds all Open Reading Frames (ORFs) in DNA sequences from a FASTA file. An ORF is a sequence of DNA that starts with a start codon (ATG) and ends with a stop codon (TAA, TAG, or TGA). The program analyzes all 6 reading frames (3 forward frames and 3 reverse complement frames) and outputs ORFs that meet a user-specified minimum length.
 
 ## How the Program Works
+```
 User Input (FASTA file + min length)
 ↓
 Parse FASTA file
@@ -17,6 +18,7 @@ Filter by minimum length
 Output ORFs in FASTA format
 (headers with frame, position, length)
 (codons grouped, 15 per line)
+```
 
 
 ## Team Collaboration
